@@ -19,16 +19,25 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class PublisherService {
 
-    @Value("${pubsub.projectId}")
-    private String projectID;
-    @Value("${pubsub.topicId}")
-    private String topicID;
+
+    private final String projectID;
+
+    private final String topicID;
+
+    private Publisher publisher;
+
+    PublisherService(@Value("${pubsub.projectId}") String projectID,
+                     @Value("${pubsub.topicId}") String topicID) {
+        this.projectID = projectID;
+        this.topicID = topicID;
+
+    }
 
     public String messagePublisher(UserInfo userInfo) throws IOException, ExecutionException, InterruptedException {
 
         log.info("TESTING");
         TopicName topicName = TopicName.of(projectID,topicID);
-        Publisher publisher = null;
+
 
         log.info("Message Info :{}",userInfo);
 

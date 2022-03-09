@@ -1,50 +1,119 @@
 package com.loblaw.loblowsampleservice.service;
 
+import com.google.api.core.SettableApiFuture;
 import com.google.cloud.pubsub.v1.Publisher;
-import com.google.pubsub.v1.ProjectName;
-import com.google.pubsub.v1.Topic;
-import com.google.pubsub.v1.TopicName;
-import com.loblaw.loblowsampleservice.dto.UserInfo;
+import com.google.cloud.spring.pubsub.core.PubSubTemplate;
+import com.google.cloud.spring.pubsub.support.PublisherFactory;
+import com.google.cloud.spring.pubsub.support.SubscriberFactory;
+import com.google.protobuf.ByteString;
+import com.google.pubsub.v1.PubsubMessage;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.Rule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.util.concurrent.ListenableFuture;
 
-import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.isA;
+
 @Slf4j
-public class PublisherServiceTest {
+@SpringBootTest
+class PublisherServiceTest {
 
     @Mock
-    PublisherService publisherService;
+    private PublisherFactory mockPublisherFactory;
 
     @Mock
-    private ProjectName mockProjects;
-    @Mock
-    private TopicName mockTopics;
+    private SubscriberFactory mockSubscriberFactory;
 
-    private final String topicIdTest = "test";
-    private final String projectIdTest = "project-test";
+    private PubSubTemplate pubSubTemplate;
+    @Mock
+    private Publisher publisher;
+
+    private SettableApiFuture<String> settableApiFuture;
+
+    private PubsubMessage pubsubMessage;
+
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
+
+    private PubSubTemplate createTemplate() {
+        PubSubTemplate pubSubTemplate = new PubSubTemplate(this.mockPublisherFactory, this.mockSubscriberFactory);
+
+        return pubSubTemplate;
+    }
 
     @BeforeEach
-    void setup(){
+    void setup() {
         MockitoAnnotations.openMocks(this);
+
+        this.pubSubTemplate = createTemplate();
+        Mockito.when(this.mockPublisherFactory.createPublisher("testTopic"))
+                .thenReturn(this.publisher);
+        this.settableApiFuture = SettableApiFuture.create();
+        Mockito.when(this.publisher.publish(isA(PubsubMessage.class)))
+                .thenReturn(this.settableApiFuture);
+        this.pubsubMessage = PubsubMessage.newBuilder().setData(
+                ByteString.copyFrom("testing publisher".getBytes())).build();
+    }
+
+
+    @Test
+    void test() {
+
+        this.pubSubTemplate.publish("testTopic", "testPayload");
+        Mockito.verify(this.publisher, Mockito.times(1))
+                .publish(isA(PubsubMessage.class));
+
     }
 
     @Test
-    void test() throws IOException, ExecutionException, InterruptedException {
-        UserInfo userInfo1 = new UserInfo();
-        userInfo1.setName("test");
-        userInfo1.setEmail("test@xyz.com");
-        userInfo1.setCustomerId(1);
-        TopicName name = TopicName.of(projectIdTest,topicIdTest);
-        Mockito.when(TopicName.of(projectIdTest,topicIdTest)).thenReturn(name);
-        String response = publisherService.messagePublisher(userInfo1);
-        log.info(response);
+    void testPublish() throws ExecutionException, InterruptedException {
+        this.settableApiFuture.set("result");
+        ListenableFuture<String> future = this.pubSubTemplate.publish("testTopic",
+                this.pubsubMessage);
 
+        assertThat(future.get()).isEqualTo("result");
     }
+
+    @Test
+    void testPublish_String() {
+        this.pubSubTemplate.publish("testTopic", "testPayload");
+
+        Mockito.verify(this.publisher, Mockito.times(1))
+                .publish(isA(PubsubMessage.class));
+    }
+
+    @Test
+    void testPublish_Bytes() {
+        this.pubSubTemplate.publish("testTopic", "testPayload".getBytes());
+
+        Mockito.verify(this.publisher, Mockito.times(1))
+                .publish(isA(PubsubMessage.class));
+    }
+
+    @Test
+    void testPublish_withHeaders() {
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Debugged code", "Error code");
+        headers.put("Hotfix", "bug resolved");
+
+        this.pubSubTemplate.publish("testTopic", "jaguar god", headers);
+
+        Mockito.verify(this.publisher).publish(argThat((message) ->
+                message.getAttributesMap().get("Debugged code").equals("Error code") &&
+                        message.getAttributesMap().get("Hotfix").equals("bug resolved")));
+    }
+
 
 }
