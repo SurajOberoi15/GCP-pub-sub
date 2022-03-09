@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.security.Principal;
 import java.util.concurrent.ExecutionException;
 
 @Slf4j
@@ -45,4 +46,10 @@ public class PubSubController {
         }
         return new ResponseEntity<>("Message Generated: " + response, HttpStatus.OK);
     }
+
+    @GetMapping(value="/user")
+    public Principal user(Principal principal) {
+        return principal;
+    }
+
 }
