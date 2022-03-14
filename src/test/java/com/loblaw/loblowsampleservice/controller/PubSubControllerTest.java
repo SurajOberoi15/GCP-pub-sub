@@ -37,22 +37,22 @@ public class PubSubControllerTest {
         this.mockMvc = standaloneSetup(this.pubSubController).build();
     }
 
-    @Test
-    public void publishMessage_with_requiredData_should_return_2xx() throws Exception {
-
-        UserInfo userInfo1 = new UserInfo();
-        userInfo1.setName("test");
-        userInfo1.setEmail("test@xyz.com");
-        userInfo1.setCustomerId(1);
-        String request = new ObjectMapper().writeValueAsString(userInfo1);
-
-        this.mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/publishMessage")
-                .accept(MediaType.APPLICATION_JSON_VALUE)
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .content(request))
-                .andExpect(MockMvcResultMatchers.status().isOk());
-//                .andDo(MockMvcResultHandlers.print());
-    }
+//    @Test
+//    public void publishMessage_with_requiredData_should_return_2xx() throws Exception {
+//
+//        UserInfo userInfo1 = new UserInfo();
+//        userInfo1.setName("test");
+//        userInfo1.setEmail("test@xyz.com");
+//        userInfo1.setCustomerId(1);
+//        String request = new ObjectMapper().writeValueAsString(userInfo1);
+//
+//        this.mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/publishMessage")
+//                .accept(MediaType.APPLICATION_JSON_VALUE)
+//                .contentType(MediaType.APPLICATION_JSON_VALUE)
+//                .content(request))
+//                .andExpect(MockMvcResultMatchers.status().isOk());
+////                .andDo(MockMvcResultHandlers.print());
+//    }
 
     @Test
     public void publishMessage_with_invalidData_should_return_4xx() throws Exception {

@@ -7,6 +7,7 @@ import com.google.pubsub.v1.ProjectSubscriptionName;
 import com.google.pubsub.v1.PubsubMessage;
 import com.loblaw.loblowsampleservice.dto.ResponseDTO;
 import lombok.extern.slf4j.Slf4j;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -32,7 +33,7 @@ public class SubscriberService {
             log.info("ID :" + pubsubMessage.getMessageId());
             log.info("DATA: " + pubsubMessage.getData().toStringUtf8());
             responseDTO.setMessageID(pubsubMessage.getMessageId());
-            responseDTO.setUserInfo(pubsubMessage.getData().toStringUtf8());
+            responseDTO.setUserInfo(new JSONObject(pubsubMessage.getData().toStringUtf8()));
             ackReplyConsumer.ack();
         };
 
