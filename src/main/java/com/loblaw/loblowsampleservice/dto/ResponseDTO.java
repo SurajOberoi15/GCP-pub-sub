@@ -6,5 +6,5 @@ import org.json.JSONObject;
 @Data
 public class ResponseDTO {
     private String messageID;
-    private JSONObject userInfo;
+    private String userInfo;
 }

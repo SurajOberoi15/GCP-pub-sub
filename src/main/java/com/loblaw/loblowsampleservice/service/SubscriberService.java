@@ -33,7 +33,7 @@ public class SubscriberService {
             log.info("ID :" + pubsubMessage.getMessageId());
             log.info("DATA: " + pubsubMessage.getData().toStringUtf8());
             responseDTO.setMessageID(pubsubMessage.getMessageId());
-            responseDTO.setUserInfo(new JSONObject(pubsubMessage.getData().toStringUtf8()));
+            responseDTO.setUserInfo(pubsubMessage.getData().toStringUtf8());
             ackReplyConsumer.ack();
         };
 

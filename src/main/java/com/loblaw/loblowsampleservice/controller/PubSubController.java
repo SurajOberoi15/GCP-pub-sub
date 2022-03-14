@@ -29,7 +29,7 @@ public class PubSubController {
     @GetMapping("/getMessage")
     public ResponseEntity<String> messageConsumer(){
         ResponseDTO responseDTO = subscriberService.messageSubscriber();
-        return new ResponseEntity<>(responseDTO.getUserInfo().toString(),HttpStatus.OK);
+        return new ResponseEntity<>(new JSONObject(responseDTO.getUserInfo()).toString(),HttpStatus.OK);
     }
 
 
