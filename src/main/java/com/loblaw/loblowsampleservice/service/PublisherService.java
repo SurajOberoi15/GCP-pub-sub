@@ -1,6 +1,8 @@
 package com.loblaw.loblowsampleservice.service;
 
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.wnameless.json.unflattener.JsonUnflattener;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.pubsub.v1.Publisher;
@@ -44,16 +46,17 @@ public class PublisherService {
 
         JSONObject jsonObject = new JSONObject(userInfo);
         JSONObject object = jsonObject.getJSONObject("collectedData");
+//        JsonNode jsonNode = new ObjectMapper().readTree(object.toString());
         String pureJson = JsonUnflattener.unflatten(object.toString());
         Map<String, Object> map = JsonUnflattener.unflattenAsMap(object.toString());
 
         Set<String> keys =  object.keySet();
 
-        log.info("Message Info :{}",pureJson);
+        log.info("Message Info :{}",new JSONObject(pureJson));
 
         try {
             publisher = Publisher.newBuilder(topicName).build();
-            ByteString messageData = ByteString.copyFromUtf8(pureJson);
+            ByteString messageData = ByteString.copyFromUtf8(pureJson.toString());
             PubsubMessage pubsubMessage = PubsubMessage.newBuilder().setData(messageData).build();
             ApiFuture<String> publishedMessage = publisher.publish(pubsubMessage);
             log.info("Message id generated:{}", publishedMessage.get());

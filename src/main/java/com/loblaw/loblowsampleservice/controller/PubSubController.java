@@ -1,7 +1,5 @@
 package com.loblaw.loblowsampleservice.controller;
 
-import com.github.wnameless.json.flattener.JsonFlattener;
-import com.github.wnameless.json.unflattener.JsonUnflattener;
 import com.loblaw.loblowsampleservice.dto.ResponseDTO;
 import com.loblaw.loblowsampleservice.service.PublisherService;
 import com.loblaw.loblowsampleservice.service.SubscriberService;
@@ -11,9 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Map;
-import java.util.Set;
 
 @Slf4j
 @RestController
@@ -40,7 +35,7 @@ public class PubSubController {
         try {
            response = publisherService.messagePublisher(userInfo);
         } catch (Exception e) {
-            log.error("Exception Occurred" + e.getMessage());
+           e.printStackTrace();
             response = "Some Error Occurred";
             return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
         }
