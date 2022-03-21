@@ -22,22 +22,22 @@ public class PubSubController {
     SubscriberService subscriberService;
 
     @GetMapping("/getMessage")
-    public ResponseEntity<String> messageConsumer(){
+    public ResponseEntity<String> messageConsumer() {
         ResponseDTO responseDTO = subscriberService.messageSubscriber();
-        return new ResponseEntity<>(new JSONObject(responseDTO.getUserInfo()).toString(),HttpStatus.OK);
+        return new ResponseEntity<>(new JSONObject(responseDTO.getUserInfo()).toString(), HttpStatus.OK);
     }
 
 
     @PostMapping("/publishMessage")
-    public ResponseEntity<String> publishMessage(@RequestBody String userInfo){
+    public ResponseEntity<String> publishMessage(@RequestBody String userInfo) {
         log.info("User info entered:{}", userInfo);
-        String response = null;
+        String response;
         try {
-           response = publisherService.messagePublisher(userInfo);
+            response = publisherService.messagePublisher(userInfo);
         } catch (Exception e) {
-           e.printStackTrace();
+            e.printStackTrace();
             response = "Some Error Occurred";
-            return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>("Message Generated: " + response, HttpStatus.OK);
     }
